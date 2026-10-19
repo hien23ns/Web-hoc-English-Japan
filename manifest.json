@@ -1,0 +1,22 @@
+{
+  "name": "AutoPilot Study Hub (TOEIC 650+ & JLPT N3)",
+  "short_name": "AutoPilot Study",
+  "description": "Hệ thống tự học siêu cá nhân hóa TOEIC 650+ và JLPT N3 với cơ chế 1-Click Autopilot",
+  "start_url": "./index.html",
+  "display": "standalone",
+  "background_color": "#090d16",
+  "theme_color": "#090d16",
+  "orientation": "any",
+  "icons": [
+    {
+      "src": "assets/icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png"
+    },
+    {
+      "src": "assets/icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png"
+    }
+  ]
+}

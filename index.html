@@ -1,0 +1,674 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <meta name="description" content="AutoPilot Study Hub: Hệ thống siêu cá nhân hóa TOEIC 650+ và JLPT N3 với cơ chế 1-Click Autopilot Workout, Đo tốc độ phản xạ Cognitive Telemetry, Radio rảnh tay và Thi thử 15 phút.">
+  <meta name="keywords" content="TOEIC 650, JLPT N3, autopilot study, học tiếng anh, học tiếng nhật, spaced repetition, thi thử rút gọn, cognitive telemetry">
+  <meta name="theme-color" content="#090d16">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <title>AutoPilot Study Hub • TOEIC 650+ & JLPT N3 (Zero-Bloat Cloud)</title>
+
+  <!-- PWA Manifest -->
+  <link rel="manifest" href="manifest.json">
+
+  <!-- Preconnect Google Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link rel="stylesheet" href="css/styles.css?v=3.1">
+</head>
+<body>
+
+  <!-- Confetti Canvas for Celebrations -->
+  <canvas id="confetti-canvas"></canvas>
+
+  <!-- Floating Exit Button for Zen Focus Mode (Allows immediate return to Dashboard) -->
+  <button id="zen-exit-floating-btn" class="zen-exit-floating-btn" title="Thoát chế độ Zen Focus để quay lại Dashboard">
+    <span>🧘 Thoát Zen Focus</span> <span class="zen-exit-hint">[ESC / Alt+S]</span>
+  </button>
+
+  <div class="app-container">
+
+    <!-- App Header -->
+    <header class="app-header">
+      <div class="brand-section">
+        <div class="brand-logo-icon">⚡</div>
+        <div class="brand-titles">
+          <h1>AutoPilot Study Hub</h1>
+          <div class="brand-subtitle">
+            <span class="badge-tag badge-toeic">TOEIC 650+</span>
+            <span style="color: var(--text-muted);">×</span>
+            <span class="badge-tag badge-jlpt">JLPT N3</span>
+            <span>• Zero-Bloat Cloud</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="header-actions">
+        <!-- Track Switcher -->
+        <div class="track-segmented-switch" id="track-switcher">
+          <button class="track-btn active" data-track="TOEIC" id="track-btn-toeic">
+            <span>🇬🇧</span> TOEIC
+          </button>
+          <button class="track-btn" data-track="JLPT" id="track-btn-jlpt">
+            <span>🇯🇵</span> JLPT
+          </button>
+          <button class="track-btn" data-track="DUAL" id="track-btn-dual">
+            <span>⚡</span> 50/50
+          </button>
+        </div>
+
+        <!-- Furigana Toggle -->
+        <button class="btn-subtle" id="furigana-btn" title="Bật/Tắt Furigana nhanh">
+          あ/漢 Furigana
+        </button>
+
+        <!-- Eco / Lite Mode -->
+        <button class="btn-subtle" id="eco-mode-btn" title="Chế độ Eco siêu nhẹ máy, tiết kiệm pin">
+          🍃 Eco: Tắt
+        </button>
+
+        <!-- Cloud Sync Button -->
+        <button class="btn-subtle" id="btn-open-cloud-sync" title="Đồng bộ Máy tính & Điện thoại">
+          ☁️ Sync PIN
+        </button>
+
+        <!-- Radio Rảnh Tay Button -->
+        <button class="btn-subtle" id="btn-podcast-toggle" title="Chế độ Radio Rảnh Tay khi di chuyển">
+          🎧 Radio
+        </button>
+
+        <!-- White Noise Toggle -->
+        <button class="btn-subtle" id="white-noise-btn" title="Tiếng ồn trắng phòng thi tập trung">
+          🌧️ Noise
+        </button>
+
+        <!-- Zen Mode Toggle -->
+        <button class="btn-subtle" id="zen-mode-btn" title="Chế độ Zen Focus không xao nhãng (Alt + S)">
+          🧘 Zen
+        </button>
+
+        <!-- Streak Pill -->
+        <div class="streak-pill" id="streak-badge" title="Chuỗi ngày học liên tục">
+          <span>🔥</span> <span id="streak-count">3 Ngày</span>
+        </div>
+
+        <!-- Audio Sound Toggle -->
+        <button class="icon-btn" id="mute-toggle-btn" title="Bật/Tắt hiệu ứng âm thanh">
+          🔊
+        </button>
+
+        <!-- Settings Button -->
+        <button class="icon-btn" id="settings-btn" title="Cài đặt hệ thống & AI Key">
+          ⚙️
+        </button>
+      </div>
+    </header>
+
+    <!-- Hands-Free Commute Podcast Floating Banner -->
+    <div class="podcast-player-banner" id="podcast-player-widget" style="display: none;">
+      <div class="podcast-track-info">
+        <div class="podcast-icon-disc" id="podcast-disc">📻</div>
+        <div>
+          <div style="font-size: 0.75rem; color: #34d399; font-weight: 700;" id="podcast-step-badge">
+            Lần 1: Nghe từ/câu gốc (1.0x)
+          </div>
+          <div style="font-size: 1.15rem; font-weight: 800; color: #fff;" id="podcast-track-title">
+            Đang khởi tạo playlist rảnh tay...
+          </div>
+          <div style="font-size: 0.8rem; color: var(--text-secondary);">
+            Tự động: Đọc gốc &rarr; Nghỉ 3s nhẩm nghĩa &rarr; Đọc tiếng Việt & Mẹo &rarr; Đọc ví dụ &rarr; Chuyển câu
+          </div>
+        </div>
+      </div>
+
+      <div class="podcast-controls">
+        <button class="btn-subtle" id="btn-podcast-prev">⏮ Trước</button>
+        <button class="btn-autopilot-glow" id="btn-podcast-play-pause" style="padding: 8px 20px; font-size: 1rem;">
+          ⏸
+        </button>
+        <button class="btn-subtle" id="btn-podcast-next">Sau ⏭</button>
+      </div>
+    </div>
+
+    <!-- Desktop Navigation Tabs -->
+    <nav class="main-nav-tabs" aria-label="Main Navigation">
+      <button class="nav-tab-btn active" data-tab="autopilot" id="nav-btn-autopilot">
+        <span class="tab-icon">⚡</span>
+        <span>1-Click Autopilot</span>
+        <span class="tab-badge">Mở lên là học</span>
+      </button>
+
+      <button class="nav-tab-btn" data-tab="vocab" id="nav-btn-vocab">
+        <span class="tab-icon">📚</span>
+        <span>Kho Từ Vựng SRS</span>
+        <span class="tab-badge" id="vocab-tab-badge">SM-2+</span>
+      </button>
+
+      <button class="nav-tab-btn" data-tab="mock" id="nav-btn-mock">
+        <span class="tab-icon">🏆</span>
+        <span>Thi Thử 15 Phút</span>
+        <span class="tab-badge">Dự báo điểm</span>
+      </button>
+
+      <button class="nav-tab-btn" data-tab="ai" id="nav-btn-ai">
+        <span class="tab-icon">🤖</span>
+        <span>AI Vá Lỗ Hổng</span>
+        <span class="tab-badge">Zero-Prompt</span>
+      </button>
+
+      <button class="nav-tab-btn" data-tab="syllabus" id="nav-btn-syllabus">
+        <span class="tab-icon">📅</span>
+        <span>Lộ Trình 60 Ngày</span>
+        <span class="tab-badge">Đóng gói sẵn</span>
+      </button>
+
+      <button class="nav-tab-btn" data-tab="notebook" id="nav-btn-notebook">
+        <span class="tab-icon">📕</span>
+        <span>Sổ Tay Lỗi Sai</span>
+        <span class="tab-badge" id="notebook-badge-count">3-Strike</span>
+      </button>
+    </nav>
+
+    <!-- MAIN VIEW AREA -->
+    <main>
+      <!-- ==============================================
+           VIEW 1: 1-CLICK AUTOPILOT DASHBOARD
+           ============================================== -->
+      <section class="view-section active" id="view-autopilot">
+        <!-- Hero Glow Banner -->
+        <div class="hero-autopilot-banner">
+          <div class="hero-content">
+            <div class="hero-text-block">
+              <span class="hero-pill-tag badge-toeic" id="hero-pill-track">
+                🇬🇧 TOEIC 650+ ZERO-EFFORT
+              </span>
+              <h2 class="hero-title" id="hero-title">1-Click TOEIC 650+ Daily Workout</h2>
+              <p class="hero-desc" id="hero-desc">
+                Không cần chọn giáo trình, không cần tìm đề. Chỉ cần bấm 1 nút duy nhất, hệ thống tự động dẫn bạn qua 4 chặng: Từ vựng SRS &rarr; Phản xạ ngữ pháp bấm giờ 20s &rarr; Nghe chép từ khóa & Shadowing &rarr; Báo cáo lỗ hổng.
+              </p>
+
+              <!-- 4-Stage Stepper Preview -->
+              <div class="autopilot-stepper-preview">
+                <div class="step-chip">
+                  <span class="chip-num">1</span>
+                  <span>Từ vựng SRS Audio</span>
+                </div>
+                <span class="step-arrow">&rarr;</span>
+                <div class="step-chip">
+                  <span class="chip-num">2</span>
+                  <span>Phản xạ bấm giờ 20s</span>
+                </div>
+                <span class="step-arrow">&rarr;</span>
+                <div class="step-chip">
+                  <span class="chip-num">3</span>
+                  <span>Nghe chép & Shadowing</span>
+                </div>
+                <span class="step-arrow">&rarr;</span>
+                <div class="step-chip">
+                  <span class="chip-num">4</span>
+                  <span>Quét & Vá lỗ hổng</span>
+                </div>
+              </div>
+
+              <!-- Action Buttons: Standard 25m & Micro 5m -->
+              <div style="display: flex; gap: 14px; flex-wrap: wrap; align-items: center;">
+                <button class="btn-autopilot-glow" id="btn-start-hero-autopilot">
+                  <span>⚡ BUỔI HỌC 25 PHÚT TIÊU CHUẨN</span>
+                  <span style="font-size: 1.2rem;">▶</span>
+                </button>
+                <button class="btn-subtle" id="btn-start-micro-autopilot" style="padding: 14px 22px; font-size: 0.95rem; font-weight: 700; border-color: rgba(245, 158, 11, 0.4); color: #fbbf24;">
+                  🔥 HỌC NHANH 5 PHÚT (MICRO)
+                </button>
+              </div>
+
+              <!-- Shortcut Hint -->
+              <div style="margin-top: 14px; font-size: 0.78rem; color: var(--text-muted);">
+                💡 Bôi đen/Chạm vào bất kỳ từ nào để <strong>Tra Từ Điển</strong> • <strong>Space</strong> (Tiếp tục) • <strong>1-2-3-4</strong> (Chọn đáp án) • <strong>V</strong> (Luyện nói) • Vuốt thẻ trên điện thoại!
+              </div>
+            </div>
+
+            <!-- Stats Card -->
+            <div class="hero-stats-card">
+              <div style="display: flex; justify-content: space-between; align-items: center;">
+                <h3 style="font-size: 0.95rem; font-weight: 700; color: #cbd5e1;">
+                  📊 TIẾN ĐỘ THỰC THI
+                </h3>
+                <span id="predicted-score-badge" style="font-size: 0.8rem; background: rgba(59, 130, 246, 0.2); padding: 2px 8px; border-radius: 4px;">
+                  Dự kiến: 685/990
+                </span>
+              </div>
+
+              <div>
+                <div class="stat-row">
+                  <span class="stat-label">Từ vựng đã dung nạp</span>
+                  <span class="stat-value" id="stat-words-learned">64</span>
+                </div>
+                <div class="stat-progress-bar" style="margin-top: 6px;">
+                  <div class="stat-progress-fill" style="width: 48%;"></div>
+                </div>
+              </div>
+
+              <div>
+                <div class="stat-row">
+                  <span class="stat-label">Độ chính xác phản xạ</span>
+                  <span class="stat-value" id="stat-grammar-acc">86%</span>
+                </div>
+                <div class="stat-progress-bar" style="margin-top: 6px;">
+                  <div class="stat-progress-fill" style="width: 86%;"></div>
+                </div>
+              </div>
+
+              <div>
+                <div class="stat-row">
+                  <span class="stat-label">Lỗ hổng cần AI vá</span>
+                  <span class="stat-value" id="stat-weaknesses-count" style="color: #f87171;">2 Dạng bẫy</span>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- 60-Day Diligence Heatmap Section -->
+        <div class="heatmap-container heatmap-section">
+          <div class="heatmap-header">
+            <div>
+              <h3 style="font-size: 1.05rem; font-weight: 700; color: var(--text-main);">
+                🔥 Biểu Đồ Chuyên Cần 60 Ngày (Activity Heatmap)
+              </h3>
+              <p style="font-size: 0.82rem; color: var(--text-secondary);">
+                Tự động ghi nhận mỗi phiên Autopilot hoặc bài thi thử hoàn thành. Xây dựng thói quen thép không ngắt quãng.
+              </p>
+            </div>
+            <div style="display: flex; gap: 6px; align-items: center; font-size: 0.75rem; color: var(--text-muted);">
+              <span>Ít</span>
+              <div class="heatmap-cell" style="width: 12px; height: 12px;"></div>
+              <div class="heatmap-cell level-1" style="width: 12px; height: 12px;"></div>
+              <div class="heatmap-cell level-2" style="width: 12px; height: 12px;"></div>
+              <div class="heatmap-cell level-3" style="width: 12px; height: 12px;"></div>
+              <div class="heatmap-cell level-4" style="width: 12px; height: 12px;"></div>
+              <span>Nhiều</span>
+            </div>
+          </div>
+
+          <div class="heatmap-grid" id="heatmap-grid">
+            <!-- 60 cells injected dynamically -->
+          </div>
+        </div>
+
+        <!-- Feature Highlights Grid -->
+        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 18px; margin-top: 24px;">
+          <div class="weakness-card">
+            <div style="font-size: 26px; margin-bottom: 8px;">☁️</div>
+            <h4 style="font-size: 1.05rem; font-weight: 700; margin-bottom: 6px;">Đồng Bộ Đám Mây 1-Chạm (Mã PIN)</h4>
+            <p style="font-size: 0.88rem; color: var(--text-secondary);">
+              Học trên máy tính rồi mang sang điện thoại chỉ với 1 mã PIN 6 số. Không cần email, không cần đăng ký tài khoản.
+            </p>
+          </div>
+
+          <div class="weakness-card">
+            <div style="font-size: 26px; margin-bottom: 8px;">🔍</div>
+            <h4 style="font-size: 1.05rem; font-weight: 700; margin-bottom: 6px;">Chạm-Là-Tra Từ Điển & Bật/Tắt Furigana</h4>
+            <p style="font-size: 0.88rem; color: var(--text-secondary);">
+              Chạm hoặc bôi đen bất kỳ từ tiếng Anh/Nhật nào để tra nghĩa, phát âm và lưu ngay vào thẻ SRS bằng 1 nút bấm.
+            </p>
+          </div>
+
+          <div class="weakness-card">
+            <div style="font-size: 26px; margin-bottom: 8px;">📱</div>
+            <h4 style="font-size: 1.05rem; font-weight: 700; margin-bottom: 6px;">Vuốt Thẻ Trên Điện Thoại & Bottom Nav</h4>
+            <p style="font-size: 0.88rem; color: var(--text-secondary);">
+              Vuốt trái = Quên, Vuốt phải = Đã thuộc. Thanh điều hướng đáy màn hình tối ưu cho thao tác 1 ngón tay cái.
+            </p>
+          </div>
+
+          <div class="weakness-card">
+            <div style="font-size: 26px; margin-bottom: 8px;">🍃</div>
+            <h4 style="font-size: 1.05rem; font-weight: 700; margin-bottom: 6px;">Eco / Lite Mode Chống Nóng Máy</h4>
+            <p style="font-size: 0.88rem; color: var(--text-secondary);">
+              Tự động giảm tải hiệu ứng GPU, giúp máy mát rượi và tiết kiệm pin tối đa khi học trên điện thoại hoặc máy yếu.
+            </p>
+          </div>
+        </div>
+      </section>
+
+      <!-- ==============================================
+           VIEW: KHO TỪ VỰNG SRS (VOCABULARY & FLASHCARD VAULT)
+           ============================================== -->
+      <section class="view-section" id="view-vocab">
+        <div class="vocab-vault-header">
+          <div>
+            <span class="ai-pill" style="background: rgba(59, 130, 246, 0.2); color: #60a5fa; border-color: rgba(59, 130, 246, 0.4);">
+              📚 THUẬT TOÁN SM-2+ & COGNITIVE TELEMETRY
+            </span>
+            <h2 class="vocab-vault-title">Kho Từ Vựng & Thẻ Nhớ SRS Đa Tầng</h2>
+            <p class="vocab-vault-subtitle">
+              Toàn bộ từ vựng TOEIC 650+ và Kanji JLPT N3 cốt lõi kèm phiên âm IPA/Hán Việt, âm thanh Web Speech, cụm từ đi kèm, câu ví dụ và thuật toán giãn cách chống quên.
+            </p>
+          </div>
+          <button class="btn-autopilot-glow" id="btn-quick-flashcard-drill" style="padding: 12px 24px;">
+            <span>⚡ Luyện Flashcard Hôm Nay</span>
+          </button>
+        </div>
+
+        <!-- SRS Stats Quick Bar -->
+        <div class="vocab-stats-strip">
+          <div class="vocab-stat-box">
+            <div class="vocab-stat-num" id="vocab-stat-total">64</div>
+            <div class="vocab-stat-label">Tổng Từ Vựng</div>
+          </div>
+          <div class="vocab-stat-box">
+            <div class="vocab-stat-num" id="vocab-stat-due" style="color: #f87171;">5</div>
+            <div class="vocab-stat-label">Cần Ôn Hôm Nay</div>
+          </div>
+          <div class="vocab-stat-box">
+            <div class="vocab-stat-num" id="vocab-stat-mastered" style="color: #34d399;">18</div>
+            <div class="vocab-stat-label">Đã Miễn Dịch (Mastered)</div>
+          </div>
+          <div class="vocab-stat-box">
+            <div class="vocab-stat-num" id="vocab-stat-hesitant" style="color: #fbbf24;">2</div>
+            <div class="vocab-stat-label">Phân Vân (>15s)</div>
+          </div>
+        </div>
+
+        <!-- Search & Filter Controls -->
+        <div class="vocab-search-row">
+          <input type="text" class="vocab-search-input" id="vocab-search-box" placeholder="🔍 Tìm kiếm từ vựng, kanji, nghĩa tiếng Việt, hoặc âm Hán Việt..." />
+          <div class="vocab-filter-pills" id="vocab-filter-pills">
+            <button class="vocab-filter-pill active" data-filter="all">Tất cả</button>
+            <button class="vocab-filter-pill" data-filter="TOEIC">🇬🇧 TOEIC 650+</button>
+            <button class="vocab-filter-pill" data-filter="JLPT">🇯🇵 JLPT N3</button>
+            <button class="vocab-filter-pill" data-filter="due">⚡ Cần ôn (Due)</button>
+            <button class="vocab-filter-pill" data-filter="mastered">🟢 Đã thuộc</button>
+          </div>
+        </div>
+
+        <!-- Vocab Cards Grid -->
+        <div class="vocab-cards-grid" id="vocab-cards-grid"></div>
+      </section>
+
+      <!-- ==============================================
+           VIEW 2: 15-MINUTE MINI MOCK EXAM & SCORE ESTIMATOR
+           ============================================== -->
+      <section class="view-section" id="view-mock">
+        <div class="ai-engine-banner" style="background: linear-gradient(135deg, rgba(234, 88, 12, 0.35), rgba(15, 23, 42, 0.9) 60%, rgba(13, 148, 136, 0.25)); border-color: rgba(245, 158, 11, 0.35);">
+          <div>
+            <span class="ai-pill" style="background: rgba(245, 158, 11, 0.2); color: #fbbf24; border-color: rgba(245, 158, 11, 0.4);">
+              🏆 MÔ PHỎNG PHÒNG THI ÁP LỰC CAO
+            </span>
+            <h2 class="ai-title">Thi Thử Rút Gọn 15 Phút & Dự Báo Điểm</h2>
+            <p class="ai-subtitle">
+              Trích xuất ngẫu nhiên 25 câu hỏi chuẩn cấu trúc thi thật dưới áp lực đồng hồ đếm ngược 12 phút. Thuật toán tự động quy đổi ra điểm TOEIC (trên 990) và điểm JLPT N3 (trên 180) kèm cảnh báo điểm liệt.
+            </p>
+          </div>
+        </div>
+
+        <div id="mock-exam-prelaunch" style="background: var(--bg-card); border: 1px solid var(--border-glass); border-radius: var(--radius-lg); padding: 36px; text-align: center;">
+          <div style="font-size: 48px; margin-bottom: 12px;">⏱️</div>
+          <h3 style="font-size: 1.5rem; font-weight: 800; color: #fff; margin-bottom: 8px;">
+            Sẵn Sàng Cho Thử Thách 25 Câu / 12 Phút?
+          </h3>
+          <p style="color: var(--text-secondary); max-width: 600px; margin: 0 auto 24px;">
+            Đề thi sẽ bao gồm đầy đủ các phần: Part 1, Part 2 Blind Listening, Part 5, Part 6 và Part 7 (đối với TOEIC) hoặc Moji-Goi, Bunpou, Star ★ Puzzle, Dokkai và Choukai (đối với JLPT N3).
+          </p>
+          <button class="btn-autopilot-glow" id="btn-start-mock-exam" style="padding: 16px 40px; font-size: 1.1rem;">
+            <span>BẮT ĐẦU TÍNH GIỜ LÀM BÀI ▶</span>
+          </button>
+        </div>
+
+        <div class="mock-exam-layout" id="mock-exam-container" style="display: none;">
+          <div style="background: var(--bg-card); border: 1px solid var(--border-glass); border-radius: var(--radius-md); padding: 24px;" id="mock-q-area"></div>
+          <div class="mock-q-navigator">
+            <div style="text-align: center; margin-bottom: 16px;">
+              <span style="font-size: 0.8rem; color: var(--text-muted); display: block;">THỜI GIAN CÒN LẠI</span>
+              <span id="mock-timer-display" style="font-family: var(--font-mono); font-size: 2.2rem; font-weight: 800; color: #34d399;">12:00</span>
+            </div>
+            <div style="font-size: 0.85rem; font-weight: 700; color: #cbd5e1; margin-bottom: 6px;">DANH SÁCH CÂU HỎI (25)</div>
+            <div class="nav-grid-pills" id="mock-q-nav-pills"></div>
+            <button class="btn-autopilot-glow" id="btn-submit-mock" style="width: 100%; justify-content: center; margin-top: 24px; padding: 12px; background: linear-gradient(135deg, #10b981, #059669);">
+              ✓ Nộp Bài Thi Thử
+            </button>
+          </div>
+        </div>
+
+        <div id="mock-score-result-box" style="display: none;"></div>
+      </section>
+
+      <!-- ==============================================
+           VIEW 3: AI TỰ ĐỘNG VÁ LỖ HỔNG (ADAPTIVE AI)
+           ============================================== -->
+      <section class="view-section" id="view-ai">
+        <div class="ai-engine-banner">
+          <div>
+            <span class="ai-pill">✨ ZERO-EFFORT ADAPTIVE ENGINE</span>
+            <h2 class="ai-title">AI Tự Động Vá Lỗ Hổng (Không Cần Prompt)</h2>
+            <p class="ai-subtitle">
+              Hệ thống theo dõi phân bổ lỗi sai của bạn. Chỉ cần bấm 1 nút, AI sẽ tự động sinh ngay 1 bộ bài tập tương tự để triệt tiêu hoàn toàn điểm yếu đó mà không bắt bạn phải gõ prompt.
+            </p>
+          </div>
+          <button class="btn-ai-magic" id="btn-ai-generate-now">
+            <span>⚡ AI Sinh Bài Tập Vá Ngay</span>
+          </button>
+        </div>
+
+        <h3 style="font-size: 1.2rem; font-weight: 700; margin-bottom: 16px;">
+          Bản Đồ Bẫy Đề Thi & Điểm Yếu Cần Khắc Phục
+        </h3>
+
+        <div class="weakness-radar-grid" id="weakness-cards-container"></div>
+      </section>
+
+      <!-- ==============================================
+           VIEW 4: PRE-BUILT 60-DAY SYLLABUS
+           ============================================== -->
+      <section class="view-section" id="view-syllabus">
+        <div class="syllabus-controls-row">
+          <div>
+            <h2 style="font-size: 1.45rem; font-weight: 800; margin-bottom: 4px;">
+              Lộ Trình 60 Ngày Tích Hợp Sẵn
+            </h2>
+            <p style="color: var(--text-secondary); font-size: 0.9rem;">
+              Toàn bộ kiến thức trọng tâm đã được đóng gói sẵn. Bấm vào bất kỳ ngày nào để học ngay hoặc nhờ AI mở rộng.
+            </p>
+          </div>
+
+          <div class="phase-tabs-container">
+            <button class="phase-filter-btn active" data-phase="all">Tất cả giai đoạn</button>
+            <button class="phase-filter-btn" data-phase="1">Giai đoạn 1 (Ngày 1-15)</button>
+            <button class="phase-filter-btn" data-phase="2">Giai đoạn 2 (Ngày 16-30)</button>
+            <button class="phase-filter-btn" data-phase="3">Giai đoạn 3 (Ngày 31-45)</button>
+            <button class="phase-filter-btn" data-phase="4">Giai đoạn 4 (Ngày 46-60)</button>
+          </div>
+        </div>
+
+        <div class="syllabus-grid" id="syllabus-grid"></div>
+      </section>
+
+      <!-- ==============================================
+           VIEW 5: AUTO-MISTAKE NOTEBOOK (3-STRIKE MASTERY)
+           ============================================== -->
+      <section class="view-section" id="view-notebook">
+        <div class="notebook-toolbar">
+          <div class="notebook-filters">
+            <select class="filter-select" id="mistake-track-filter">
+              <option value="all">Tất cả mục tiêu (TOEIC & JLPT)</option>
+              <option value="TOEIC">Chỉ TOEIC 650+</option>
+              <option value="JLPT">Chỉ JLPT N3</option>
+            </select>
+
+            <select class="filter-select" id="mistake-tag-filter">
+              <option value="all">Tất cả dạng bẫy</option>
+            </select>
+
+            <select class="filter-select" id="mistake-status-filter">
+              <option value="all">Tất cả tiến trình</option>
+              <option value="unmastered">Chưa làm chủ (⚪)</option>
+              <option value="mastered">Đã miễn dịch (🟢🟢🟢)</option>
+            </select>
+          </div>
+
+          <div style="display: flex; gap: 10px;">
+            <button class="btn-subtle" id="btn-export-mistakes">
+              📥 Xuất Dữ Liệu (JSON)
+            </button>
+          </div>
+        </div>
+
+        <div class="mistake-list" id="mistake-list"></div>
+      </section>
+    </main>
+
+  </div>
+
+  <!-- Mobile Bottom Navigation Bar (Thumb Friendly) -->
+  <nav class="mobile-bottom-nav" aria-label="Mobile Navigation">
+    <button class="mobile-nav-btn active" data-tab="autopilot">
+      <span class="mobile-nav-icon">⚡</span>
+      <span>Autopilot</span>
+    </button>
+    <button class="mobile-nav-btn" data-tab="vocab">
+      <span class="mobile-nav-icon">📚</span>
+      <span>Từ Vựng</span>
+    </button>
+    <button class="mobile-nav-btn" data-tab="mock">
+      <span class="mobile-nav-icon">🏆</span>
+      <span>Thi Thử</span>
+    </button>
+    <button class="mobile-nav-btn" data-tab="ai">
+      <span class="mobile-nav-icon">🤖</span>
+      <span>AI Vá Lỗ</span>
+    </button>
+    <button class="mobile-nav-btn" data-tab="syllabus">
+      <span class="mobile-nav-icon">📅</span>
+      <span>Lộ Trình</span>
+    </button>
+    <button class="mobile-nav-btn" data-tab="notebook">
+      <span class="mobile-nav-icon">📕</span>
+      <span>Sổ Tay</span>
+    </button>
+  </nav>
+
+  <!-- ========================================================
+       WORKOUT MODAL OVERLAY (4-STAGE AUTOPILOT RUNNER)
+       ======================================================== -->
+  <div class="workout-overlay" id="workout-overlay" role="dialog" aria-modal="true">
+    <div class="workout-box">
+      <div class="workout-header">
+        <div class="stage-tracker">
+          <span class="stage-badge" id="current-stage-badge">Chặng 1: Từ vựng SRS Tự Phát Âm</span>
+          <div class="stage-dots">
+            <div class="stage-dot current" title="Chặng 1: SRS Flashcard"></div>
+            <div class="stage-dot" title="Chặng 2: Timed Grammar Reflex"></div>
+            <div class="stage-dot" title="Chặng 3: Auto Dictation & Shadowing"></div>
+            <div class="stage-dot" title="Chặng 4: Debrief & Weakness Scan"></div>
+          </div>
+        </div>
+
+        <button class="icon-btn" id="close-workout-btn" title="Tạm dừng buổi học">✕</button>
+      </div>
+
+      <div class="workout-body" id="workout-body"></div>
+    </div>
+  </div>
+
+  <!-- ========================================================
+       CLOUD SYNC MODAL (PC & MOBILE SYNC VIA 6-DIGIT PIN)
+       ======================================================== -->
+  <div class="modal-overlay" id="cloud-sync-modal" role="dialog" aria-modal="true">
+    <div class="modal-card">
+      <div class="modal-header">
+        <h3 class="modal-title">☁️ Đồng Bộ Đám Mây 1-Chạm (PC & Điện Thoại)</h3>
+        <button class="icon-btn" id="close-cloud-sync-btn">✕</button>
+      </div>
+
+      <p style="color: var(--text-secondary); font-size: 0.9rem; margin-bottom: 18px;">
+        Không cần đăng ký tài khoản! Chỉ cần dùng 1 <strong>Mã PIN cá nhân 6 số</strong> để chuyển toàn bộ tiến độ, Streak, Sổ tay lỗi sai và API Key giữa Máy tính và Điện thoại.
+      </p>
+
+      <div class="form-group">
+        <label class="form-label" for="cloud-pin-input">Mã PIN Cá Nhân 6 Số Của Bạn:</label>
+        <div style="display: flex; gap: 8px;">
+          <input type="text" class="form-input" id="cloud-pin-input" placeholder="Ví dụ: 889900" maxlength="6" style="font-family: var(--font-mono); font-size: 1.2rem; font-weight: 700; letter-spacing: 3px; text-align: center;" />
+          <button class="btn-subtle" id="btn-generate-pin" style="white-space: nowrap;">Tạo PIN Ngẫu Nhiên</button>
+        </div>
+      </div>
+
+      <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-top: 18px;">
+        <button class="btn-autopilot-glow" id="btn-cloud-push" style="justify-content: center; padding: 12px;">
+          ⬆️ Đẩy Lên Đám Mây
+        </button>
+        <button class="btn-subtle" id="btn-cloud-pull" style="justify-content: center; padding: 12px; font-weight: 700; border-color: rgba(16, 185, 129, 0.4); color: #34d399;">
+          ⬇️ Kéo Về Thiết Bị Này
+        </button>
+      </div>
+
+      <div id="cloud-sync-status" style="margin-top: 16px; font-size: 0.85rem; line-height: 1.5;"></div>
+    </div>
+  </div>
+
+  <!-- ========================================================
+       REMEDIAL AI DRILL MODAL (PROMPTLESS WEAKNESS FIXER)
+       ======================================================== -->
+  <div class="modal-overlay" id="remedial-modal" role="dialog" aria-modal="true">
+    <div class="modal-card">
+      <div class="modal-header">
+        <h3 class="modal-title">⚡ AI Vá Lỗ Hổng Thực Chiến</h3>
+        <button class="icon-btn" id="close-remedial-btn">✕</button>
+      </div>
+      <div id="remedial-modal-body"></div>
+    </div>
+  </div>
+
+  <!-- ========================================================
+       SETTINGS MODAL (GEMINI API KEY & BACKUP/RESTORE)
+       ======================================================== -->
+  <div class="modal-overlay" id="settings-modal" role="dialog" aria-modal="true">
+    <div class="modal-card">
+      <div class="modal-header">
+        <h3 class="modal-title">⚙️ Cài Đặt Hệ Thống & Bảo Toàn Dữ Liệu</h3>
+        <button class="icon-btn" id="close-settings-btn">✕</button>
+      </div>
+
+      <div class="form-group">
+        <label class="form-label" for="gemini-api-key">Google Gemini API Key (Tùy chọn):</label>
+        <input type="password" class="form-input" id="gemini-api-key" placeholder="AIzaSy..." />
+        <p class="form-hint">
+          * Nếu để trống, hệ thống sử dụng <strong>Built-in AI Rule Engine</strong> offline. Nhập API Key để kích hoạt Background AI Prefetching đa model (gemini-2.5-flash / gemini-1.5-flash).
+        </p>
+      </div>
+
+      <div class="form-group" style="margin-top: 18px;">
+        <label class="form-label">Sao lưu & Phục hồi dữ liệu học tập thủ công (JSON):</label>
+        <div style="display: flex; gap: 10px; margin-top: 6px;">
+          <button class="btn-subtle" id="btn-backup-data" style="flex: 1; padding: 10px;">
+            📥 Tải File Sao Lưu
+          </button>
+          <button class="btn-subtle" id="btn-restore-data" style="flex: 1; padding: 10px;">
+            📤 Khôi Phục Từ File
+          </button>
+          <input type="file" id="restore-file-input" accept=".json" style="display: none;" />
+        </div>
+      </div>
+
+      <button class="btn-autopilot-glow" id="save-api-key-btn" style="width: 100%; justify-content: center; padding: 12px; margin-top: 20px;">
+        Lưu Cấu Hình
+      </button>
+    </div>
+  </div>
+
+  <!-- Application Scripts -->
+  <script src="js/audio.js?v=3.1"></script>
+  <script src="js/telemetry.js?v=3.1"></script>
+  <script src="js/dictionary.js?v=3.1"></script>
+  <script src="js/cloud-sync.js?v=3.1"></script>
+  <script src="js/data/toeic-data.js?v=3.1"></script>
+  <script src="js/data/jlpt-data.js?v=3.1"></script>
+  <script src="js/srs.js?v=3.1"></script>
+  <script src="js/mistakes.js?v=3.1"></script>
+  <script src="js/adaptive-ai.js?v=3.1"></script>
+  <script src="js/mock-exam.js?v=3.1"></script>
+  <script src="js/autopilot.js?v=3.1"></script>
+  <script src="js/app.js?v=3.1"></script>
+</body>
+</html>
